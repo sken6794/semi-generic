@@ -1,0 +1,84 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GENERIC MONSTER</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mukta:300,400,700"> 
+    <link rel="stylesheet" href="<%=request.getContextPath() %>/fonts/icomoon/style.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+
+    <link rel="stylesheet" href="<%=request.getContextPath() %>/css/bootstrap.min.css">
+    <link rel="stylesheet" href="<%=request.getContextPath() %>/css/magnific-popup.css">
+    <link rel="stylesheet" href="<%=request.getContextPath() %>/css/jquery-ui.css">
+    <link rel="stylesheet" href="<%=request.getContextPath() %>/css/owl.carousel.min.css">
+    <link rel="stylesheet" href="<%=request.getContextPath() %>/css/owl.theme.default.min.css">
+
+    <link rel="stylesheet" href="<%=request.getContextPath() %>/css/aos.css">
+    <link rel="stylesheet" href="<%=request.getContextPath() %>/css/style.css">  
+    <link rel="stylesheet" href="<%=request.getContextPath() %>/css/generic.css">  
+     
+      <script src="<%=request.getContextPath() %>/js/jquery-3.3.1.min.js"></script>
+	  <script src="<%=request.getContextPath() %>/js/jquery-ui.js"></script>
+	  <script src="<%=request.getContextPath() %>/js/popper.min.js"></script>
+	  <script src="<%=request.getContextPath() %>/js/bootstrap.min.js"></script>
+	  <script src="<%=request.getContextPath() %>/js/owl.carousel.min.js"></script>
+	  <script src="<%=request.getContextPath() %>/js/jquery.magnific-popup.min.js"></script>
+	  <script src="<%=request.getContextPath() %>/js/aos.js"></script>
+	  <script src="<%=request.getContextPath() %>/js/main.js"></script> 
+</head>
+<body>
+    
+
+<div>
+
+    <header>
+        <div class="site-wrap">
+          <div class="site-navbar bg-white py-2">
+            <div class="search-wrap">
+              <div class="container">
+                <a href="#" class="search-close js-search-close"><span class="icon-close2"></span></a>
+                <form action="#" method="post">
+                  <input type="text" class="form-control" placeholder="찾으시는 상품명을 입력해주세요.">
+                </form> 
+              </div>
+            </div>
+            <div class="container">
+              <div class="d-flex align-items-center justify-content-between">
+                <div class="logo">
+                  <div class="site-logo">
+                    <a href="index.html" class="js-logo-clone">GENERIC MONSTER</a>
+                  </div>
+                </div>
+                <div class="main-nav d-none d-lg-block">
+                  <nav class="site-navigation text-right text-md-center" role="navigation">
+                    <ul class="site-menu js-clone-nav d-none d-lg-block">
+                      <li><a href="#">제네릭몬스터</a></li>
+                        <li><a href="shop.html">안경</a></li>
+                        <li><a href="#">선글라스</a></li>
+                        <li><a href="contact.html">매장</a></li>
+                    </ul>
+                  </nav>
+                </div>
+                <div class="icons">
+                  <a href="#" class="icons-btn d-inline-block js-search-open"><span class="icon-search"></span></a>
+                  <a href="#" class="icons-btn d-inline-block"><span class="icon-user"></span></a>
+                  <a href="cart.html" class="icons-btn d-inline-block bag">
+                    <span class="icon-shopping-bag"></span>
+                    <span class="number">2</span>
+                  </a>
+                  <a href="#" class="site-menu-toggle js-menu-toggle ml-3 d-inline-block d-lg-none"><span class="icon-menu"></span></a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        </header>
+    </div> 
+    
+
+

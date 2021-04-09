@@ -1,0 +1,19 @@
+
+<%@page import="generic.dao.OrderDAO"%>
+<%@ page language="java" contentType="text/html; charset=EUC-KR"
+	pageEncoding="EUC-KR"%>
+<%@page import="java.text.DecimalFormat"%>
+<%@page import="java.sql.*"%>
+<%@page import="java.util.*"%>
+<%@page import="org.json.JSONObject"%>
+<%
+	JSONObject responseObj = new JSONObject();
+	
+	ArrayList<JSONObject> list=OrderDAO.getDAO().getChartData();
+	responseObj.put("chartdata", list);
+	//System.out.println("out");
+	out.print(responseObj.toString());
+	 //System.out.println(responseObj.toString());
+	
+
+%>

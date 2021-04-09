@@ -1,0 +1,78 @@
+<%@page import="java.io.File"%>
+<%@page import="com.oreilly.servlet.multipart.DefaultFileRenamePolicy"%>
+<%@page import="generic.dto.NoticeDTO"%>
+<%@page import="generic.dao.NoticeDAO"%>
+<%@page import="com.oreilly.servlet.MultipartRequest"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    
+    
+<%@include file="/security/login_check.jspf" %>
+<%
+	request.setCharacterEncoding("utf-8");
+
+	if(request.getMethod().equals("GET")) {
+		out.println("<script type='text/javascript'>");
+		out.println("location.href='"+request.getContextPath()+"/error/error_400.jsp';");
+		out.println("</script>");
+		return;
+	}
+	
+	String nimage=request.getParameter("nimg");
+	String saveDirectory=request.getServletContext().getRealPath("/images");
+	int nid=Integer.parseInt(request.getParameter("nid"));
+	
+	if(request.getParameter(nimage)!=null){//이미지가 있을때
+		
+		MultipartRequest mr=new MultipartRequest(request, saveDirectory, 30*1024*1024, "UTF-8", new DefaultFileRenamePolicy());
+		String nwriter=mr.getParameter("nwriter").replace("<", "&lt;").replace(">", "&gt;");
+		String ntitle=mr.getParameter("ntitle").replace("<", "&lt;").replace(">", "&gt;");
+		String ncontent=mr.getParameter("ncontent").replace("<", "&lt;").replace(">", "&gt;");
+		String nimg=mr.getOriginalFileName("nimg");			
+		
+		int nextNum=NoticeDAO.getDAO().selectNextNum();	
+		
+		NoticeDTO notice=new NoticeDTO();	 
+		notice.setNid(nid); 
+		notice.setNtitle(ntitle);
+		notice.setNwriter(nwriter);
+		notice.setNcontent(ncontent); 
+		
+		if(nimg==nimage){//이미지를 변경한 경우
+			notice.setNimg(nimg);		
+			//기존 이미지 제거		
+			new File(saveDirectory,nimage).delete();
+		
+		} else {//이미지를 변경하지 않을 경우
+			notice.setNimg(nimage);
+		}
+		
+		NoticeDAO.getDAO().updateNotice(notice);
+		
+		
+	} else if(request.getParameter(nimage)==null){//이미지 파일 없으면
+		String nwriter=request.getParameter("nwriter").replace("<", "&lt;").replace(">", "&gt;");
+		String ntitle=request.getParameter("ntitle").replace("<", "&lt;").replace(">", "&gt;");
+		String ncontent=request.getParameter("ncontent").replace("<", "&lt;").replace(">", "&gt;");	
+		String nimg=request.getParameter("nimg");			
+		
+		int nextNum=NoticeDAO.getDAO().selectNextNum();	
+		
+		
+		NoticeDTO notice=new NoticeDTO();	
+		notice.setNid(nextNum); 
+		notice.setNtitle(ntitle);
+		notice.setNwriter(nwriter);
+		notice.setNcontent(ncontent); 
+		notice.setNimg(nimg);		
+	
+		NoticeDAO.getDAO().updateNotice(notice);
+	}
+	
+	
+	out.println("<script type='text/javascript'>");
+	out.println("location.href='"+request.getContextPath()+"/notice/notice_list.jsp';");
+	out.println("</script>");
+	
+	
+%>

@@ -1,0 +1,137 @@
+<%@page import="java.text.DecimalFormat"%>
+<%@page import="mon.dto.CartDTO"%>
+<%@page import="java.util.List"%>
+<%@page import="mon.dao.CartDAO"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+
+<%
+	String mid = "ASD1";
+	//세션에 저장된 회원정보에서 아이디를 받아와서 카트테이블에서 검색하여 리스트 반환
+	List<CartDTO> cartList =  CartDAO.getDAO().selectCart(mid);
+	
+	//카트의 합계를 구하기 위한 메소드 호출
+	int cartprice = CartDAO.getDAO().selectTotalPrice(mid);
+	
+%>  
+
+    <jsp:include page="/header.jsp"/>
+  <div class="site-wrap" >
+<form  id="cartForm" >
+    <div class="site-section">
+      <div class="container">
+        <div class="row mb-5">
+         <div class="col-md-12">
+          
+            <div class="site-blocks-table">
+              <table class="table" style="margin-top:100px;">
+                <thead>
+                  <tr>
+                    <th class="product-thumbnail">Image</th>
+                    <th class="product-name">상품명</th>
+                    <th class="product-price">가격</th>
+                    <th class="product-quantity">수량</th>
+                   	<th class="product-total">합계</th>
+                    <th class="product-remove">목록에서 제거</th>
+                  </tr>
+                </thead>
+                <tbody>
+                <% for(CartDTO cart : cartList) { %>
+                
+               
+                  <tr>
+                    <td class="product-thumbnail">
+                      <img src="images/rate_1.jpg" alt="Image" class="img-fluid">
+                    </td>
+                    <td class="product-name center-block">
+                      <h2 class="h5 text-black"><%=cart.getCpname() %></h2>
+                    </td>
+                    <td><%=DecimalFormat.getInstance().format(cart.getCprice()) %></td>
+                    <td>
+                      <div class="input-group mb-3" style="max-width: 120px;">
+                        <div class="input-group-prepend">
+                          <button class="btn btn-outline-dark js-btn-minus" type="button">&minus;</button>
+                        </div>
+                        <input type="text" class="form-control text-center" name="cqty" value="<%=cart.getCqty() %>"  min="1" placeholder="" aria-label="Example text with button addon" aria-describedby="button-addon1">
+                        <div class="input-group-append">
+                          <button class="btn btn-outline-dark js-btn-plus" type="button">&plus;</button>
+                        </div>
+                      </div>
+                    </td>
+                    <td><%=DecimalFormat.getInstance().format(cart.getCqty()*cart.getCprice()) %></td>                    
+                    <td><a href="cart_delete.jsp?cno=<%=cart.getCno()%>" class="btn btn-outline-dark height-auto btn-sm">X</a></td>
+                  </tr>
+				 <% }  %>	
+                  
+                </tbody>
+              </table>
+            </div>
+           </div>
+          
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="row mb-5">
+              <div class="col-md-6 mb-3 mb-md-0">
+                <button class="btn btn-outline-dark btn-sm btn-block" id="cartUpdate" type="submit">카트 수정</button>
+              </div>
+              <div class="col-md-6">
+                <a href="index.jsp" class="btn btn-outline-dark btn-sm btn-block">계속 쇼핑하기</a>
+              </div>
+            </div>
+            <div class="row">
+              
+              
+              
+            </div>
+          </div>
+          <div class="col-md-6 pl-5">
+            <div class="row justify-content-end">
+              <div class="col-md-7">
+                <div class="row">
+                  <div class="col-md-12 text-right border-bottom mb-5">
+                    <h3 class="text-black h4 text-uppercase">장바구니 합계</h3>
+                  </div>
+                </div>
+                
+                <div class="row mb-5">
+                  <div class="col-md-6">
+                    <span class="text-black">총 합계</span>
+                  </div>
+                  <div class="col-md-6 text-right">
+                    <strong class="text-black"><%=DecimalFormat.getCurrencyInstance().format(cartprice) %></strong>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-12">
+                    <button class="btn btn-outline-dark btn-lg btn-block" id="checkoutBtn">결제하기</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </form>
+
+    
+  </div>
+<script type="text/javascript">
+$("#cartUpdate").click(function() {
+	$("#cartForm").attr("method", "post")
+	$("#cartForm").attr("action", "<%=request.getContextPath() %>/cart/cart_update.jsp")
+	$("#cartForm").submit()	
+})
+
+$("#checkoutBtn").click(function() {
+	
+	$("#cartForm").attr("action", "<%=request.getContextPath() %>/order/checkout.jsp")
+		
+})
+</script>
+    <jsp:include page="/footer.jsp"/>
+
+  

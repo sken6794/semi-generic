@@ -1,0 +1,170 @@
+<%@page import="generic.dao.QboardDAO"%>
+<%@page import="generic.dao.RboardDAO"%>
+<%@page import="generic.dto.RboardDTO"%>
+<%@page import="generic.dto.QboardDTO"%>
+<%@page import="generic.dto.MemberDTO"%>
+<%@page import="generic.dao.ProductDAO"%>
+<%@page import="generic.dto.ProductDTO"%>
+<%@page import="java.text.DecimalFormat"%>
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%
+	//세션에 저장된 권한 관련 정보를 반환받아 저장
+	// => 로그인 사용자에게만 글쓰기 권한 부여
+	MemberDTO loginMember=(MemberDTO)session.getAttribute("loginMember");
+	
+	//전달값을 반환받아 저장
+	int productId=Integer.parseInt(request.getParameter("pid"));
+	
+	ProductDTO product=ProductDAO.getDAO().selectIdProduct(productId);
+	
+	//상품번호를 전달받아 BOARD 테이블에 저장된 게시글을 검색하여 반환하는 메소드
+	QboardDTO qboard=QboardDAO.getDAO().selectPidQboard(productId);
+	RboardDTO rboard=RboardDAO.getDAO().selectPidRboard(productId);
+
+	//세션에 저장된 메세지 받아오기
+	String message=(String)session.getAttribute("message");
+	if(message==null) {
+		message="";
+	} else {
+		session.removeAttribute("message");
+	}
+%>   
+    
+<jsp:include page="/header.jsp"/>
+<body class="scrollBody" data-spy="scroll" data-target=".navbar" data-offset="50"> 
+<form id="addCartForm">
+<input type="hidden" name="cpname" value="<%=product.getPname()%>">
+<input type="hidden" name="cprice" value="<%=product.getPprice()%>">
+<input type="hidden" name="pid" value="<%=product.getPid()%>">
+
+    <div class="site-section">
+      <div class="container">
+      	<div class="padding_container" style="margin-top: 35px;">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="item-entry">
+                <img src="<%=product.getPimg1() %>" alt="img" class="responsive">                          
+            </div>
+          </div>
+          <div class="col-md-6">
+          <h2 class="text-black"><%=product.getPname() %></h2>
+          <p><%=product.getPcontent() %></p>
+          <% DecimalFormat df = new DecimalFormat("###,###,###"); %>
+          <p><strong class="text-primary h4"><%=df.format(product.getPprice()) %>원</strong></p>
+            <div class="mb-1 d-flex">
+              <label for="option-sm" class="d-flex mr-3 mb-3">
+                <span class="d-inline-block mr-2" style="top:-2px; position: relative;"><input type="radio" id="option-sm" name="shop-sizes"></span>
+                <span class="d-inline-block text-black">Black</span>
+              </label>
+              <label for="option-md" class="d-flex mr-3 mb-3">
+                <span class="d-inline-block mr-2" style="top:-2px; position: relative;"><input type="radio" id="option-md" name="shop-sizes"></span>
+                <span class="d-inline-block text-black">Red</span>
+              </label>
+              <label for="option-lg" class="d-flex mr-3 mb-3">
+                <span class="d-inline-block mr-2" style="top:-2px; position: relative;"><input type="radio" id="option-lg" name="shop-sizes"></span>
+                <span class="d-inline-block text-black">Yellow</span>
+              </label>              
+            </div>
+              <div class="mb-5">
+                <div class="input-group mb-3" style="max-width: 120px;">
+                  <div class="input-group-prepend">
+                   <button class="btn btn-outline-primary js-btn-minus" type="button">&minus;</button>
+                  </div>
+                  <input type="text" name="cqty" class="form-control text-center" value="1" placeholder="" aria-label="Example text with button addon" aria-describedby="button-addon1">
+                <div class="input-group-append">
+                <button class="btn btn-outline-primary js-btn-plus" type="button">&plus;</button>
+              </div>
+          </div>
+        </div>
+        <p><button id="addCartBtn" class="buy-now btn btn-sm height-auto px-4 py-3 btn-outline-dark">Add To Cart</button></p>
+      </div>      
+    </div>  
+      
+  <div>
+  </div>
+  <br><br><br>
+  </div>
+  </div>
+  </div> 
+  </form>
+  <!-- 상세페이지 탭 -->
+   
+  <div class="container">
+    <!-- Nav tabs -->
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="#section1">상품보기</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#section2">상품후기</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#section3">상품문의</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#section4">교환 및 환불 규정</a>
+          </li>          
+        </ul>
+      
+      
+      <div id="section1" class="container-fluid" style="padding-top:70px;padding-bottom:70px">
+        <div class="detail_img">
+        <img alt="img" src="<%=product.getPimg2()%>" width="100%"><br><br>
+        <img alt="img" src="<%=product.getPimg3()%>" width="100%"><br><br>
+        <img alt="img" src="<%=product.getPimg4()%>" width="100%"><br><br>
+        </div>
+        <h4>공식 온라인에서만 제공하는 특별한 선물포장 서비스</h4>
+        <h7>공식 온라인스토어에서 상품을 구매하시는 모든 고객님께 특별한 선물포장 서비스가 제공됩니다.<br>리본 포장이 된 케이스에 극세사 섬유 클리너가 동봉되어, 제품을 안전하게 보호해주는 케이스에 담아 무료로 배송됩니다.</h7><br><br>
+        <img alt="img" src="<%=request.getContextPath() %>/images/gift.jpg" width="100%">
+      </div>
+      
+      <div id="section2" class="container-fluid" style="padding-top:70px;padding-bottom:70px">
+      <br><br>
+		<!-- 상품후기 출력영역 -->
+		<jsp:include page="/board/r_board_list.jsp"/>
+      </div>
+      
+      <div id="section3" class="container-fluid" style="padding-top:70px;padding-bottom:70px">
+      <br><br>
+      	<!-- 상품문의 출력영역 -->
+        <jsp:include page="/board/q_board_list.jsp"/>
+        
+      <div id="section4" class="container-fluid" style="padding-top:70px;padding-bottom:70px">
+        <h1>Section 4</h1>
+        <p>교환 및 환불 규정</p>
+      </div>
+     </div>
+    
+<!-- 푸터 -->
+<jsp:include page="/footer.jsp"/>
+
+
+<script type="text/javascript">
+$("#r_modify").click(function() {
+	$("#boardForm").attr("action","<%=request.getContextPath()%>/board/r_board_modify.jsp");
+	$("#boardForm").submit();
+});
+
+$( '#rslide' ).click( function() {
+	// if(컨텐트값!=null){
+	$( '#rboard_content' ).slideToggle();
+	//}        	
+} );
+
+
+$( '#qslide' ).click( function() {
+	// if(컨텐트값!=null){
+	$( '#qboard_content' ).slideToggle();
+	//}        	
+} );
+$("#addCartBtn").click(function() {
+	$("#addCartForm").attr("action","<%=request.getContextPath()%>/cart/cart_add_action.jsp");
+	$("#addCartForm").attr("method","post");
+	$("#addCartForm").submit();
+});
+alert(<%=message%>)
+
+
+</script>

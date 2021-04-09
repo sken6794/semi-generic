@@ -1,0 +1,188 @@
+package generic.dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import mon.dto.OrderDTO;
+import mon.dto.OrderProductDTO;
+
+public class OrderDAO extends JdbcDAO{
+	private static OrderDAO _dao;
+	
+	private OrderDAO() {
+		// TODO Auto-generated constructor stub
+	}
+	
+	static {
+		_dao = new OrderDAO();
+	}
+	
+	public static OrderDAO getDAO() {
+		return _dao;
+	}
+	
+	//주문정보를 입력받아서 order_item 테이블에 삽입하고 삽입행의 갯수 반환
+	public int insertOrder(OrderDTO order) {
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		int rows = 0;
+		
+		try {
+			con = getConnection();
+			String sql = "INSERT INTO ORDER_ITEM VALUES(ORDER_ITEM_SEQ.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, sysdate, '상품준비중', ?)";
+			pstmt=con.prepareStatement(sql);			
+			
+			pstmt.setString(1, order.getMid());
+			pstmt.setString(2, order.getOrname());
+			pstmt.setString(3, order.getOaddress());
+			pstmt.setString(4, order.getOaddress2());
+			pstmt.setString(5, order.getOaddress3());
+			pstmt.setString(6, order.getOphone());
+			pstmt.setString(7, order.getOrequire());					
+			pstmt.setString(8, order.getOname());
+			
+			rows = pstmt.executeUpdate();
+		} catch (SQLException e) {
+			System.out.println("[에러]insertOrder()메소드의 오류 = "+e.getMessage());
+			e.printStackTrace();
+		} finally {
+			close(con, pstmt);
+		}
+		return rows;
+	}
+	
+	//회원정보를 전달받아 간단한 결제내역만 출력하는 메소드
+	public List<OrderDTO> selectOrder(String id) {
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		OrderDTO order = null;
+		List<OrderDTO> orderList = new ArrayList<OrderDTO>();
+		try {
+			con = getConnection();
+			String sql = "select * from order_item where mid=? order by ono desc";
+			pstmt=con.prepareStatement(sql);
+			pstmt.setString(1, id);
+			rs=pstmt.executeQuery();
+			while(rs.next()) {
+				order = new OrderDTO();
+				order.setOno(rs.getInt("ono"));
+				order.setMid(rs.getNString("mid"));
+				order.setOrname(rs.getNString("orname"));
+				order.setOaddress(rs.getNString("oaddress"));
+				order.setOaddress2(rs.getString("oaddress2"));
+				order.setOaddress2(rs.getString("oaddress3"));
+				order.setOphone(rs.getNString("ophone"));
+				order.setOrequire(rs.getString("orequire"));
+				order.setOdate(rs.getString("odate"));
+				order.setOstate(rs.getString("ostate"));
+				order.setOname(rs.getString("oname"));
+				orderList.add(order);
+				
+			}
+			
+		} catch (SQLException e) {
+			System.out.println("[에러]selectOrder()메소드의 오류 = "+e.getMessage());
+		}finally {
+			close(con, pstmt, rs);
+		}
+		return orderList;
+	}
+				
+	//주문번호를 전달받아 해당 주문정보를 반환하는 메소드
+	public List<OrderDTO> selectNoOrder(int ono) {
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		OrderDTO order = null;
+		List<OrderDTO> orderList = new ArrayList<OrderDTO>();
+		try {
+			con = getConnection();
+			String sql = "select p.pname, p.pprice, op.opqty, o.ostate, o.oaddress, o.oaddress2, o.oaddress3, o.oname, o.orname, o.ophone from order_product op\r\n" + 
+					"join order_item o on (op.ono=o.ono)\r\n" + 
+					"join product p on (p.pid=op.pid)\r\n" + 
+					"where o.ono = ?";
+			pstmt=con.prepareStatement(sql);
+			pstmt.setInt(1, ono);
+			rs=pstmt.executeQuery();
+			while(rs.next()) {
+				order = new OrderDTO();
+				order.getProduct().setPname(rs.getString("pname"));
+				order.getProduct().setPprice(rs.getInt("pprice"));
+				order.getOrderProduct().setOpqty(rs.getInt("opqty"));
+				order.setOstate(rs.getString("ostate"));
+				order.setOaddress(rs.getString("oaddress"));
+				order.setOaddress2(rs.getString("oaddress2"));
+				order.setOaddress3(rs.getString("oaddress3"));
+				order.setOname(rs.getString("oname"));
+				order.setOrname(rs.getString("orname"));
+				order.setOphone(rs.getString("ophone"));
+				orderList.add(order);
+			}
+		} catch (SQLException e) {
+			System.out.println("[에러]selectNoOrder()메소드의 오류 = "+e.getMessage());
+
+		} finally {
+			close(con, pstmt, rs);
+		}
+		return orderList;
+	}
+	
+	//ORDER_PRODUCT 테이블에 행을 편하게 삽입하기 위해 회원 아이디를 받아 값을 추출해오는 메소드
+	public List<OrderProductDTO> selectOrderCart(String mid) {
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		OrderProductDTO orderproduct = null;
+		List<OrderProductDTO> orderproductList = new ArrayList<OrderProductDTO>();
+		try {
+			con = getConnection();
+			String sql = "SELECT O.MID, O.ONO, C.PID, C.CQTY FROM ORDER_ITEM O JOIN CART C ON (O.MID=C.MID) WHERE O.MID=? ORDER BY O.ONO";
+			pstmt=con.prepareStatement(sql);
+			pstmt.setString(1, mid);
+			rs = pstmt.executeQuery();
+			while(rs.next()) {
+				orderproduct = new OrderProductDTO();
+				orderproduct.setOno(rs.getInt("ono"));
+				orderproduct.setPid(rs.getInt("pid"));
+				orderproduct.setOpqty(rs.getInt("cqty"));
+				orderproductList.add(orderproduct);
+				
+			}
+		} catch (SQLException e) {
+		System.out.println("[에러]selectOrderCart()메소드의 오류 = "+e.getMessage());
+		} finally {
+			close(con, pstmt, rs);
+		}
+		return orderproductList;
+	}
+	
+	
+	//ORDER_ITEM 테이블에 저장하고 같이 ORDER_PRODUCT 테이블에 삽입하는 메소드
+	public int insertOrderProduct(int ono, int pid, int opqty) {
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		int rows=0;
+		
+		try {
+			con=getConnection();
+			String sql = "insert into order_product values(order_product_seq.nextval,?,?,?)";
+			pstmt=con.prepareStatement(sql);
+			pstmt.setInt(1, ono);
+			pstmt.setInt(2, pid);
+			pstmt.setInt(3, opqty);		
+			rows=pstmt.executeUpdate();
+		} catch (SQLException e) {
+			System.out.println("[에러]insertOrderProduct()메소드의 오류 = "+e.getMessage());
+		} finally {
+			close(con, pstmt);
+		}
+		return rows;
+	}
+	
+	
+}

@@ -1,0 +1,126 @@
+<%@page import="generic.dao.Page"%>
+<%@page import="generic.dao.QboardDAO"%>
+<%@page import="generic.dto.QboardDTO"%>
+<%@page import="java.util.ArrayList"%>
+<%@page import="generic.dto.ProductDTO"%>
+<%@page import="generic.dao.ProductDAO"%>
+<%@page import="generic.dto.RboardDTO"%>
+<%@page import="generic.dao.RboardDAO"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+ <!-- 상품후기 출력영역 -->
+ <%
+ 	//후기글 갯수 반환
+	int rboardCount=RboardDAO.getDAO().selectRboardCount();
+ 
+	int pid=1003; //임의의 pid 번호. 후에 상품페이지, 상세페이지에서 받아올듯...!
+	
+	//상품번호를 전달받아 R_BOARD 테이블에 저장된 게시글을 검색하여 반환하는 메소드
+	RboardDTO rboard=RboardDAO.getDAO().selectPidRboard(pid);
+	//제품번호를 전달받아 PRODUCT 테이블에 저장된 해당 제품정보를 검색하여 반환하는 메소드 호출
+	ProductDTO product=ProductDAO.getDAO().selectIdProduct(pid);
+	
+	//별점
+	//temp에 고유값받아서 rstars 값가져오게 해줘야함......<< 지금은 임의로 준 숫자임....
+	//int temp=Integer.parseInt(request.getParameter("rstars"));
+	int temp=5;
+	String stars[]={"★", "★★", "★★★", "★★★★", "★★★★★"};
+	
+	//상품번호를 전달받아 BOARD 테이블에 저장된 게시글을 검색하여 반환하는 메소드
+	QboardDTO qboard=QboardDAO.getDAO().selectPidQboard(pid);
+
+	//게시글 갯수 반환
+	int qboardCount=QboardDAO.getDAO().selectQboardCount();
+	
+	
+ 	//페이징처리
+ 	Page psc=new Page();
+ 	int num;
+ 	if(request.getParameter("num")==null){
+ 		num=1;
+ 	}else{
+ 	num=Integer.parseInt( request.getParameter("num"));
+ 	}
+ 	System.out.println(num);
+ 	psc.setNum(num);
+ 	psc.setCount(QboardDAO.getDAO().selectQboardCount());
+ 	
+ 	ArrayList<QboardDTO> list= QboardDAO.getDAO().getQboardList(psc.getDisplayPost(), psc.getPostNum());
+ 	System.out.println(psc.getDisplayPost()+"  "+psc.getPostNum());
+	
+ %>
+ 
+<h2 style="font-weight: bold">상품문의(<%=qboardCount %>)</h2>
+        <a href="<%=request.getContextPath() %>/board/q_writing.jsp">
+       		<button type="button" class="btn btn-dark" style="float: right; height: 33px;">문의작성</button>
+        </a>
+		<br><br>
+		
+		<table class="table table-hover tbcenter">
+		  <thead>
+		    <tr style="text-align: center;">
+		      <th scope="col" style="width: 15%">답변여부</th>
+		      <th scope="col" style="width: 50%;">제목</th>
+		      <th scope="col">작성자</th>
+		      <th scope="col">작성날짜</th>
+		    </tr>
+		  </thead>
+		  
+		  <tbody>
+		    <tr>
+
+   <%--
+	  	<% 
+	  		//답변대기중인 상태인 경우
+	   		if(qanswer==0) {
+	  	%>
+    --%>
+	    
+			<th scope="row">대기중
+			<%--  
+				로그인 사용자가 관리인인 경우 [답변 작성]버튼 송출 	
+				<% if(loginMember!=null	&& loginMember.getMstatus()==0) { %>
+			    <% } %>
+			--%>
+				<a href="<%=request.getContextPath()%>/board/a_writing.jsp?pid=<%=product.getPid()%>&rno=<%=rboard.getRno() %>">
+				<span id="r_modify" class="icon-pencil"></span></a>
+			</th>
+		
+		    
+<%-- 
+		<% } else { //답변완료 상태인 경우 %>
+	     		<th scope="row">답변완료</th>
+	    <% } %>
+--%>			
+		      <td id="qslide" class="board_title"><%=qboard.getQtitle() %>
+		      
+		      <div style="display: none" id="qboard_content" >
+					<br>
+					<%=qboard.getQcontent() %> 
+				</div>
+				
+		      </td>
+		      <td><%=qboard.getQwriter() %></td>
+		      <td><%=qboard.getQdate().substring(0,11)  %></td>
+		    </tr>
+
+		  </tbody>
+		  
+		</table>
+      </div>
+
+    	<!-- 이거 css 오디서 적용되고있나요...? -->
+		<div class="text-center">
+			<ul class="pagination">
+			<%if(psc.getPrev()){ %>
+				<li><a href="ProductList.jsp?num=<%=psc.getStartPageNum()-1%>">이전</a></li>
+			<%}%>	
+			<%for(int i=psc.getStartPageNum();i<=psc.getEndPageNum();i++){ %>
+				<li><a href="ProductList.jsp?num=<%=i%>"><%=i%></a></li>
+			<%} %>	
+			<%if(psc.getNext()){ %>
+				<li><a href="ProductList.jsp?num=<%=psc.getEndPageNum()+1 %>">다음</a></li>
+			<%}System.out.println(psc.getEndPageNum()+1);%>	
+			</ul>
+
+		</div> 

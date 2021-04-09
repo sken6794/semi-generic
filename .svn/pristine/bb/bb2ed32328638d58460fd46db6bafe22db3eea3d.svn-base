@@ -1,0 +1,51 @@
+<%@page import="generic.dao.RboardDAO"%>
+<%@page import="generic.dto.RboardDTO"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%-- 변경값을 전달받아 BOARD 테이블에 저장된 게시글을 변경하고 게시글
+상세 출력페이지(board_detail.jsp)로 이동하는 JSP 문서 --%>
+<%@include file="/security/login_check.jspf" %>
+<%
+	//비정상적인 요청에 대한 응답처리
+	if(request.getMethod().equals("GET")) {
+		out.println("<script type='text/javascript'>");
+		out.println("location.href='"+request.getContextPath()+"/site/index.jsp?workgroup=error&work=error400';");
+		out.println("</script>");
+		return;
+	}	
+
+	//전달값을 반환받아 저장
+	int rno=Integer.parseInt(request.getParameter("rno"));
+
+	
+	String rtitle=request.getParameter("rtitle").replace("<", "&lt;").replace(">", "&gt;");
+	int rstatus=0;
+	if(request.getParameter("secret")!=null) {
+		rstatus=Integer.parseInt(request.getParameter("secret"));
+	}
+	String rcontent=request.getParameter("rcontent").replace("<", "&lt;").replace(">", "&gt;");
+
+	//DTO 인스턴스를 생성하고 필드값 변경
+	RboardDTO rboard=new RboardDTO();
+	rboard.setRno(rno);
+	rboard.setRtitle(rtitle);
+	rboard.setRcontent(rcontent);
+	rboard.setRstatus(rstatus);
+	
+	//게시글을 전달받아 BOARD 테이블에 저장된 해당 게시글을 변경하는
+	//DAO 클래스의 메소드 호출
+	RboardDAO.getDAO().updateRboard(rboard);
+	
+	//게시글 상세 출력페이지 이동
+	out.println("<script type='text/javascript'>");
+	out.println("location.href='"+request.getContextPath()+"/index.jsp#section2';");
+	out.println("</script>");
+%>
+
+
+
+
+
+
+
+

@@ -1,0 +1,308 @@
+package generic.dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import generic.dto.ProductDTO;
+
+public class ProductDAO extends JdbcDAO{
+
+private static ProductDAO _dao;
+	
+	private ProductDAO() {
+		// TODO Auto-generated constructor stub
+	}
+	
+	static {
+		_dao=new ProductDAO();
+	}
+	
+	public static ProductDAO getDAO() {
+		return _dao;
+	}
+	
+	//페이징 - 테이블에 저장된 게시글의 갯수를 검색하여 반환하는 메소드
+	public int productCount(String pct) {
+		Connection con=null;
+		PreparedStatement pstmt=null;
+		ResultSet rs=null;
+		int count=0;
+		try {
+			con=getConnection();
+			
+			if(pct=="안경") {
+				String sql="select count(*)from product where pct='안경'";
+				pstmt=con.prepareStatement(sql);
+				
+			} else if (pct=="선글라스") {
+				String sql="select count(*)from product where pct='선글라스'";
+				pstmt=con.prepareStatement(sql);				
+			}			
+			rs=pstmt.executeQuery();
+			
+			if(rs.next()) {
+				count=rs.getInt(1);
+			}
+			
+		} catch (SQLException e) {
+			System.out.println("[에러] productCount()메소드 sql 오류 = "+e.getMessage());
+		} finally {
+			close(con, pstmt, rs);
+		}
+		return count;
+	}
+	
+	//상품페이지 - 카테고리별(안경/선글라스)로 전체 상품을 검색하여 업데이트 날짜 기준으로 나열
+	public List<ProductDTO> selectCategoryProduct(String pct, int startRow, int endRow){
+		Connection con=null;
+		PreparedStatement pstmt=null;
+		ResultSet rs=null;
+		List<ProductDTO> productList=new ArrayList<ProductDTO>();		
+			
+		try {
+			con=getConnection();
+			
+			if(pct=="안경") {
+				String sql="select * from(select rownum rn, temp.*from (select *  from product where pct='안경' order by pregdate) temp) where rn between ? and ?";				
+				pstmt=con.prepareStatement(sql);
+				pstmt.setInt(1, startRow);
+				pstmt.setInt(2, endRow);	
+			} else if (pct=="선글라스"){
+				String sql="select * from(select rownum rn, temp.*from (select *  from product where pct='선글라스' order by pregdate) temp) where rn between ? and ?";				
+				pstmt=con.prepareStatement(sql);
+				pstmt.setInt(1, startRow);
+				pstmt.setInt(2, endRow);				
+			}
+			rs=pstmt.executeQuery();
+			
+			while(rs.next()) {
+				ProductDTO product=new ProductDTO();				
+				product.setPid(rs.getInt("pid"));
+				product.setCtno(rs.getInt("ctno"));
+				product.setPname(rs.getString("pname"));
+				product.setPct(rs.getString("pct"));
+				product.setPprice(rs.getInt("pprice"));
+				product.setPcontent(rs.getString("pcontent"));
+				product.setPimg1(rs.getString("pimg1"));
+				product.setPimg2(rs.getString("pimg2"));
+				product.setPimg3(rs.getString("pimg3"));
+				product.setPimg4(rs.getString("pimg4"));
+				product.setPstock(rs.getInt("pstock"));
+				product.setPcolor(rs.getString("pcolor"));
+				product.setPregdate(rs.getString("pregdate"));
+				product.setPstatus(rs.getInt("pstatus"));
+				
+				productList.add(product);
+			}
+			
+		} catch (SQLException e) {
+			System.out.println("[에러] selectCategoryProduct()메소드 sql 오류 = "+e.getMessage());
+		} finally {
+			close(con, pstmt, rs);
+		}
+		return productList;
+	}
+	
+	//상세페이지 - 상품ID로 해당 상품을 검색
+	public ProductDTO selectIdProduct(int pid) {
+		Connection con=null;
+		PreparedStatement pstmt=null;
+		ResultSet rs=null;
+		ProductDTO product=null;
+		try {
+			con=getConnection();
+			
+			String sql="select * from product where pid=?";
+			pstmt=con.prepareStatement(sql);
+			pstmt.setInt(1, pid);
+			
+			rs=pstmt.executeQuery();
+			
+			if(rs.next()) {
+				product=new ProductDTO();
+				product.setPid(rs.getInt("pid"));
+				product.setCtno(rs.getInt("ctno"));
+				product.setPname(rs.getString("pname"));
+				product.setPct(rs.getString("pct"));
+				product.setPprice(rs.getInt("pprice"));
+				product.setPcontent(rs.getString("pcontent"));
+				product.setPimg1(rs.getString("pimg1"));
+				product.setPimg2(rs.getString("pimg2"));
+				product.setPimg3(rs.getString("pimg3"));
+				product.setPimg4(rs.getString("pimg4"));
+				product.setPstock(rs.getInt("pstock"));
+				product.setPcolor(rs.getString("pcolor"));
+				product.setPregdate(rs.getString("pregdate"));
+				product.setPstatus(rs.getInt("pstatus"));
+			}
+		} catch (SQLException e) {
+			System.out.println("[에러]selectIdProduct() 메소드의 SQL 오류 = "+e.getMessage());
+
+		} finally {
+			close(con, pstmt, rs);
+		}
+		return product;
+	}
+	
+	//메인페이지 - 신상품 5건 검색(등록일 기준 정렬)
+	public List<ProductDTO> selectNewProduct(){
+		Connection con=null;
+		PreparedStatement pstmt=null;
+		ResultSet rs=null;
+		List<ProductDTO> productList=new ArrayList<ProductDTO>();		
+			
+		try {
+			con=getConnection();
+			String sql="select * from(select rownum rn, temp.* from(select * from product order by pregdate)temp) where rn <=5";
+			pstmt=con.prepareStatement(sql);
+			
+			rs=pstmt.executeQuery();
+			
+			while(rs.next()) {
+				ProductDTO product=new ProductDTO();				
+				product.setPid(rs.getInt("pid"));
+				product.setCtno(rs.getInt("ctno"));
+				product.setPname(rs.getString("pname"));
+				product.setPct(rs.getString("pct"));
+				product.setPprice(rs.getInt("pprice"));
+				product.setPcontent(rs.getString("pcontent"));
+				product.setPimg1(rs.getString("pimg1"));
+				product.setPimg2(rs.getString("pimg2"));
+				product.setPimg3(rs.getString("pimg3"));
+				product.setPimg4(rs.getString("pimg4"));
+				product.setPstock(rs.getInt("pstock"));
+				product.setPcolor(rs.getString("pcolor"));
+				product.setPregdate(rs.getString("pregdate"));
+				product.setPstatus(rs.getInt("pstatus"));
+				
+				productList.add(product);
+			}
+			
+		} catch (SQLException e) {
+			System.out.println("[에러] selectNewProduct()메소드 sql 오류 = "+e.getMessage());
+		} finally {
+			close(con, pstmt, rs);
+		}
+		return productList;
+	}
+	
+	//메인페이지 - 추천상품 6건 검색(재고량 기준 정렬 - 재고가 많은 상품을 추천)
+		public List<ProductDTO> selectRecommendProduct(){
+			Connection con=null;
+			PreparedStatement pstmt=null;
+			ResultSet rs=null;
+			List<ProductDTO> productList=new ArrayList<ProductDTO>();		
+				
+			try {
+				con=getConnection();
+				String sql="select * from(select rownum rn, temp.* from(select * from product order by pstock desc)temp) where rn <=6";
+				pstmt=con.prepareStatement(sql);
+				
+				rs=pstmt.executeQuery();
+				
+				while(rs.next()) {
+					ProductDTO product=new ProductDTO();				
+					product.setPid(rs.getInt("pid"));
+					product.setCtno(rs.getInt("ctno"));
+					product.setPname(rs.getString("pname"));
+					product.setPct(rs.getString("pct"));
+					product.setPprice(rs.getInt("pprice"));
+					product.setPcontent(rs.getString("pcontent"));
+					product.setPimg1(rs.getString("pimg1"));
+					product.setPimg2(rs.getString("pimg2"));
+					product.setPimg3(rs.getString("pimg3"));
+					product.setPimg4(rs.getString("pimg4"));
+					product.setPstock(rs.getInt("pstock"));
+					product.setPcolor(rs.getString("pcolor"));
+					product.setPregdate(rs.getString("pregdate"));
+					product.setPstatus(rs.getInt("pstatus"));
+					
+					productList.add(product);
+				}
+				
+			} catch (SQLException e) {
+				System.out.println("[에러] selectNewProduct()메소드 sql 오류 = "+e.getMessage());
+			} finally {
+				close(con, pstmt, rs);
+			}
+			return productList;
+		}
+		
+	//메인페이지 - 상품 이름으로 관련 상품 검색
+	public List<ProductDTO> selectNameProduct(String pname, int startRow, int endRow) {
+		Connection con=null;
+		PreparedStatement pstmt=null;
+		ResultSet rs=null;
+		List<ProductDTO> productList=new ArrayList<ProductDTO>();	
+		try {
+			con=getConnection();
+			
+			String sql="select * from(select rownum rn, temp.* from (select *  from product order by pname) temp) where lower(pname) like lower('%'||?||'%') and rn between ? and ? "; 
+
+			pstmt=con.prepareStatement(sql);
+			pstmt.setString(1, pname);
+			pstmt.setInt(2, startRow);
+			pstmt.setInt(3, endRow);
+			
+			rs=pstmt.executeQuery();
+			
+			while(rs.next()) {
+				ProductDTO product=new ProductDTO();
+				product.setPid(rs.getInt("pid"));
+				product.setCtno(rs.getInt("ctno"));
+				product.setPname(rs.getString("pname"));
+				product.setPct(rs.getString("pct"));
+				product.setPprice(rs.getInt("pprice"));
+				product.setPcontent(rs.getString("pcontent"));
+				product.setPimg1(rs.getString("pimg1"));
+				product.setPimg2(rs.getString("pimg2"));
+				product.setPimg3(rs.getString("pimg3"));
+				product.setPimg4(rs.getString("pimg4"));
+				product.setPstock(rs.getInt("pstock"));
+				product.setPcolor(rs.getString("pcolor"));
+				product.setPregdate(rs.getString("pregdate"));
+				product.setPstatus(rs.getInt("pstatus"));
+				
+				productList.add(product);
+			}
+			
+		} catch (SQLException e) {
+			System.out.println("[에러]selectNameProduct() 메소드의 SQL 오류 = "+e.getMessage());
+
+		} finally {
+			close(con, pstmt, rs);
+		}
+		return productList;
+	}
+	//메인페이지 - 검색된 상품 카운팅
+	
+	public int searchProductCount(String keyword) {
+		Connection con=null;
+		PreparedStatement pstmt=null;
+		ResultSet rs=null;
+		int count=0;
+		try {
+			con=getConnection();			
+			
+			String sql="select count(*)from product";
+			pstmt=con.prepareStatement(sql);		
+			
+			rs=pstmt.executeQuery();
+			
+			if(rs.next()) {
+				count=rs.getInt(1);
+			}
+			
+		} catch (SQLException e) {
+			System.out.println("[에러] productCount()메소드 sql 오류 = "+e.getMessage());
+		} finally {
+			close(con, pstmt, rs);
+		}
+		return count;
+	}
+	
+}

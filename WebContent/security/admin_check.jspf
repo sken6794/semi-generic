@@ -1,0 +1,16 @@
+<%@page import="generic.dto.MemberDTO"%>
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%
+	//세션에 저장된 권한 관련 인스턴스를 반환받아 저장
+	MemberDTO loginMember=(MemberDTO)session.getAttribute("loginMember");
+
+	//비로그인 사용자이거나 관리자가 아닌 사용자인 경우 - 비정상적인 요청
+	if(loginMember==null || loginMember.getMstatus()!=0) {
+		out.println("<script type='text/javascript'>");
+		out.println("location.href='"+request.getContextPath()+"/error/error_400.jsp';");
+		out.println("</script>");
+		return;
+	}
+%>  

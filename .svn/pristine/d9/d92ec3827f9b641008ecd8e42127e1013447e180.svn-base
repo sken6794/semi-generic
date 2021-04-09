@@ -1,0 +1,46 @@
+@charset "UTF-8";
+
+.text-danger{
+	display: none;
+}
+
+.tbcenter {
+	text-align: center;	
+}
+
+#board_content { 
+	text-align: left; 
+	font-weight: normal;
+}
+
+#slide { 
+	text-align: left;
+	font-weight: bold;
+}
+
+#message {
+	color: red;	
+	font-weight: bold;
+}
+
+#message_1 {
+	color: red;	
+	font-weight: bold;
+}
+
+.error {
+	color: red;
+	position: relative;
+	left: 160px;
+	display: none;
+}
+
+#f_mname{
+	color: purple;
+	font-weight: bold;
+}
+
+#f_mid{
+	color: purple;
+	font-weight: bold;
+}

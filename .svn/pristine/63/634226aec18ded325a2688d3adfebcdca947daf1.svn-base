@@ -1,0 +1,56 @@
+<%@page import="java.text.DecimalFormat"%>
+<%@page import="java.util.List"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+
+ 	<div id="header">
+      <jsp:include page="/header.jsp"/>
+	</div>
+	
+    <div class="row">
+        <div class="col-xl-12">
+          <div class="site-blocks-cover inner-page" style="background-image: url('<%=request.getContextPath() %>/images/glasses_main.jpg'); background-repeat: no-repeat; background-size: cover; background-position: center">
+          </div>         
+          <div class="custom-border-bottom py-3">
+            <div class="container">
+              <div class="row">
+                <div class="col-md-12 mb-0"><a href="index.jsp">Home</a> <span class="mx-2 mb-0">/</span> <strong class="text-black">안경</strong></div>
+                </div>
+              </div>
+            </div>
+          </div>
+   		</div>  	
+
+		      <div class="container">
+		           <div class="row mb-5">
+		              <div class="col-lg-3 col-md-4 item-entry mb-6">
+		                <a href="<%=request.getContextPath() %>/main/product_single_page.jsp" class="product-item md-height bg-gray d-block">
+		                  <img src="<%=request.getContextPath() %>/images/Karma_1.jpg" alt="Image" class="img-fluid">                  
+		                </a>
+		                <% DecimalFormat df = new DecimalFormat("###,###,###"); %>
+		                <h2 class="item-title2"><a href="<%=request.getContextPath() %>/main/product_single_page.jsp">Karma</a></h2>
+		                <div class="item-price"><strong class="item-price">320,000원</strong></div>
+		             </div>
+		          </div>
+		      </div>              
+		
+    <div class="row">
+      <div class="col-md-12 text-center">
+         <div class="site-block-27">
+            <ul>
+              <li><a href="#">&lt;</a></li>
+              <li class="active"><span>1</span></li>
+              <li><a href="#">2</a></li>
+              <li><a href="#">3</a></li>
+              <li><a href="#">4</a></li>
+              <li><a href="#">5</a></li>
+              <li><a href="#">&gt;</a></li>
+            </ul>
+         </div>
+      </div>        
+    </div>
+    
+     <div id="footer">
+      <jsp:include page="/footer.jsp"/>
+   </div>
+ 

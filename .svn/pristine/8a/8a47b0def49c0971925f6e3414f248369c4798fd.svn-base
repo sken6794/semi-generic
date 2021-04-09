@@ -1,0 +1,88 @@
+<%@page import="generic.dto.QboardDTO"%>
+<%@page import="generic.dao.QboardDAO"%>
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%-- 전달된 문의게시글 또는 답글을 반환받아 Q_BAORD 테이블에 저장하고
+	 문의게시글 목록 위치(product_single_page.jsp#section3)로 이동하는 JSP 문서 --%>
+
+<%-- 로그인 사용자만 게시글 쓰기 기능 제공 --%>
+<%@include file="/security/login_check.jspf" %>
+ 
+<%
+	//비정상적인 요청에 대한 응답처리
+	if(request.getMethod().equals("GET")) {
+		out.println("<script type='text/javascript'>");
+		out.println("alert('[에러]비정상적인 요청입니다. 메인페이지로 이동합니다.');");
+		out.println("location.href='"+request.getContextPath()+"/index.jsp#section3';");
+		out.println("</script>");
+		return;
+	}
+
+	//전달값을 반환받아 저장
+	int qref=Integer.parseInt(request.getParameter("qref"));
+	int qreStep=Integer.parseInt(request.getParameter("qreStep"));
+	//String pageNum=request.getParameter("pageNum");
+	
+	//입력값에서 태그 관련 기호를 Escape 문자로 변환하여 저장 => XSS 공격에 대한 방어
+	String qwriter=request.getParameter("qwriter").replace("<", "&lt;").replace(">", "&gt;");
+	String qtitle=request.getParameter("qtitle").replace("<", "&lt;").replace(">", "&gt;");
+	int qstatus=0;//0(초기값) - 일반글
+	
+	String qcontent=request.getParameter("qcontent").replace("<", "&lt;").replace(">", "&gt;");
+	
+	//Q_BOARD_SEQ 시퀸스 객체의 다음값을 검색하여 반환하는 DAO 클래스의 메소드 호출 - 글번호
+	int qno=QboardDAO.getDAO().selectQNextNum();
+	
+	//새 문의글 또는 답글을 구분하여 처리
+	if(qref==0) {//새 문의글 - qref, qreStep : 0
+		qref=qno;
+	} else { //답글 - qref, qreStep : 부모글 전달값
+		//부모글의 정보(qref, qreStep)를 이용하여 BOARD 테이블에 저장된
+		//기존 게시글 정보를 변경하는 DAO 클래스의 메소드 호출
+		// => 기존 게시글 중 부모글의 ref와 같고 부모글의 reStep보다 
+		//    큰 게시글의 RE_STEP 컬럼값을 1 증가되도록 변경
+		QboardDAO.getDAO().updateQReStep(qref, qreStep);		
+		
+		qreStep++;
+	}
+	
+	//세션에 저장된 관련 정보를 반환받아 저장
+	//QboardDTO qpname=(QboardDTO)session.getAttribute("qpname");
+	
+	//DTO 인스턴스를 생성하고 필드값 변경
+	QboardDTO qboard=new QboardDTO();
+	qboard.setQno(qno);//자동증가값
+	qboard.setQmid(loginMember.getMid());//로그인 사용자 아이디
+	//qboard.setQpname(qpname.getQpname()); //제품이름
+	qboard.setQwriter(qwriter);//입력값
+	qboard.setQtitle(qtitle); //문의 제목 - 입력값
+	qboard.setQcontent(qcontent);//문의 내용 - 입력값
+	qboard.setQref(qref);//새글 : 자동증가값, 답글 : 부모글 전달값
+	qboard.setQrestep(qreStep);//새글 : 0, 답글 : 부모글 전달값+1 
+	
+	//요친구는 답변액션에서 사용할때 복붙해갈수도 있으니 지우지말아보자
+	//qboard.setQanswer(qanswer);//답변여부 - 미답변 : 0, 답변완료 : 1
+	
+	//게시글을 전달받아 BOARD 테이블에 저장하는 DAO 클래스의 메소드 호출
+	QboardDAO.getDAO().insertQboard(qboard);
+	
+	//게시글 목록 출력페이지 이동
+	// => 페이지 번호 전달 - 새글 : 1, 답글 : 부모글의 페이지 번호
+	out.println("<script type='text/javascript'>");
+	out.println("alert('[작성완료]이전페이지로 돌아갑니다.');");
+	out.println("location.href='"+request.getContextPath()+"/product_single_page.jsp#section3';");
+	out.println("</script>");
+	
+ %>
+
+
+
+
+
+
+
+
+
+
+

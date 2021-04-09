@@ -1,0 +1,241 @@
+<%@page import="generic.dao.QboardDAO"%>
+<%@page import="generic.dto.QboardDTO"%>
+<%@page import="generic.dao.MemberDAO"%>
+<%@page import="generic.dao.ProductDAO"%>
+<%@page import="generic.dto.ProductDTO"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    
+<%-- => 로그인 사용자만 글쓰기 기능 제공 --%>
+	<%@include file="/security/login_check.jspf" %> 
+
+<%
+	//입력값에 대한 캐릭터셋 변경
+	request.setCharacterEncoding("utf-8");
+
+	//비로그인 사용자이거나 관리자가 아닌 사용자인 경우 - 비정상적인 요청 => 이전페이지로 돌아가게
+	if(loginMember==null || loginMember.getMstatus()!=0) {
+		out.println("<script type='text/javascript'>");
+		out.println("alert('[에러]로그인 사용자만 작성가능합니다 .이전페이지로 돌아갑니다.');");
+		out.println("location.href='"+request.getContextPath()+"/product_single_page.jsp#section3';");
+		out.println("</script>");
+		return;
+	}
+	
+	//부모글의 전달값을 저장하기 위한 변수
+	// => 부모글이 없는 경우 초기값 저장 - 새 글
+	String qref="0", qreStep="0";
+	String pageNum="1";//부모글의 요청페이지 번호 저장
+	
+	//부모글의 전달값을 반환받아 저장
+	if(request.getParameter("qref")!=null) {//부모글이 있는 경우(답글 - only 관리자)
+		qref=request.getParameter("qref");
+		qreStep=request.getParameter("qreStep");
+		pageNum=request.getParameter("pageNum");
+	}
+	
+
+	//임의값 준 것 - 후에 수정
+	int pid=1003;
+	int qno=10;
+	String id="ASD1";	
+	//int pid=Integer.parseInt(request.getParameter("pid"));
+	//String id=request.getParameter("mid");
+	
+	//제품번호를 전달받아 PRODUCT 테이블에 저장된 해당 제품정보를 검색하여 반환하는 메소드
+	ProductDTO product=ProductDAO.getDAO().selectIdProduct(pid);
+	
+	//회원아이디를 전달받아 MEMBER 테이블에 저장된 해당 회원을 검색하여 반환하는 메소드
+	MemberDTO member=MemberDAO.getDAO().selectIdMember(id);
+	
+	//문의게시글 번호를 전달받아 Q_BOARD 테이블에 저장된 해당 게시글을 검색하여 반환하는 메소드
+	QboardDTO qboard=QboardDAO.getDAO().selectQnoQboard(qno);
+			
+	
+%>
+
+<jsp:include page="/header.jsp"/>
+  
+  <div class="site-wrap">
+   
+      <div class="container">
+        <div class="row">
+        
+        </div>
+      </div>
+    </div>
+
+    <div class="custom-border-bottom py-3">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12 mb-0"><a href="index.html">Home</a> <span class="mx-2 mb-0">/</span> <strong class="text-black">Contact</strong></div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="site-section">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-6">
+          
+
+              <!-- 답변작성이 가능한 사람 = 관리자 -->
+
+            	<h2 class="h3 mb-3 text-black" style="font-weight: bold">문의 답변</h2>
+			
+          </div>
+          <div class="col-md-7">
+
+            <form action="#" method="post">
+              
+              <div class="p-3 p-lg-5 border">
+                <div class="form-group row">
+                  <div class="col-md-12">
+                    <label for="qpname" class="text-black" aria-disabled="false" style="font-weight: bold">제품명 </label>
+                    <p id="qpname"><%=product.getPname() %> 
+                    	&nbsp;&nbsp;&nbsp;/<%=product.getPcolor() %></p>
+                  </div>
+   
+                </div>
+             
+                <div class="form-group row">
+                  <div class="col-md-12">
+                    <label for="qwriter" class="text-black" style="font-weight: bold">(관리자)답변자ID </label>
+                    <p id="qwriter"><%=loginMember.getMid() %></p>
+                   
+                  </div>
+                </div>
+               
+                <div class="form-group row">
+                  <div class="col-md-12">
+                    <label for="atitle" class="text-black" style="font-weight: bold">답변 제목 <span style="color: red;">*</span></label>
+                    <input type="text" class="form-control" id="atitle" name="atitle">
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <div class="col-md-12">
+                    <label for="acontent" class="text-black" style="font-weight: bold">답변 내용 <span style="color: red;">*</span></label>
+                    <textarea name="acontent" id="acontent" cols="30" rows="7" class="form-control"></textarea>
+                  </div>
+                </div>
+                              
+                
+                <div class="form-group row">
+                  <div class="col-lg-12">
+                    <input type="submit" class="btn btn-outline-dark btn-lg btn-block" value="작성 완료">
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="col-md-5 ml-auto">
+            <div class="p-4 border mb-3">
+            
+              <span class="d-block text-primary h4 text-uppercase" style="font-weight: bold">문의 내역</span>
+              
+              <div class="info_th">
+              <table>
+	              <tr>
+	              	<th>상품이름</th>
+	              	<td><%=product.getPname() %> 
+                    	&nbsp;&nbsp;&nbsp;/<%=product.getPcolor() %></td>
+	              </tr>
+	              <tr>	
+	              	<th>작성자</th>
+	              		<td> #작성자 이름 받아올 곳 </td>
+	   <%--            <td><%=member.getMname() %> </td> --%>
+	              </tr>
+	              <tr>	
+	              	<th>문의제목</th>
+	              	<td><%=qboard.getQtitle() %></td>
+	              </tr>
+	              <tr>	
+	              	<th>문의내용</th>
+	              	<td><%=qboard.getQcontent() %></td>
+	              </tr>
+              </table>
+              <br><br>
+              <span class="d-block text-primary h4 text-uppercase" style="font-weight: bold">문의고객 정보</span>
+              
+               <table>
+	              <tr>
+	              	<th>고객ID</th>
+	              	<td><%=member.getMid() %> </td>
+	              </tr>
+	              <tr>	
+	              	<th>고객이름</th>
+	              	<td><%=member.getMname() %></td>
+	              </tr>
+	              <tr>	
+	              	<th>고객주소</th>
+	              	<td><%=member.getMaddress2() %>&nbsp;&nbsp;<%=member.getMaddress3() %></td>
+	              </tr>
+              </table>
+              
+              <br><br>
+              
+              <span class="d-block text-primary h4 text-uppercase" style="font-weight: bold">고객 구매 정보</span>
+              <table>
+	              <tr>	
+	              	<th>상품이름</th>
+	              	<td><%=product.getPname() %></td>
+	              </tr>
+	              <tr>
+	              	<th>상품수량</th>    
+	              	<td>#고객이 구매한 상품수량 받아올 곳</td>       
+	              </tr>
+	              <tr>
+	              	<th>상품가격</th>
+	              	<td>#고객이 구매한 상품가격 받아올 곳</td>
+	              </tr>
+              </table>
+             
+              <br><br>
+              
+              <span class="d-block text-primary h4 text-uppercase" style="font-weight: bold">고객 결제 정보</span>
+         	  <table>
+	              <tr>	
+	              	<th>결제금액</th>
+	              	<td>#결제금액받아올곳</td>
+	              </tr>
+	              <tr>
+	              	<th>결제날짜</th>           
+	              	<td>#결제날짜받아올곳</td>
+	              </tr>
+              </table>
+              </div>
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+<jsp:include page="/footer.jsp"/>
+
+<script type="text/javascript">
+$("#subject").focus();
+
+$("#boardForm").submit(function() {
+	if($("#qwriter").val()=="") {
+		$("#message").text("작성자명을 입력해 주세요.");
+		$("#qwriter").focus();
+		return false;
+	}
+	
+	if($("#qtitle").val()=="") {
+		$("#message").text("제목을 입력해 주세요.");
+		$("#qtitle").focus();
+		return false;
+	}
+	
+	if($("#qcontent").val()=="") {
+		$("#message").text("내용을 입력해 주세요.");
+		$("#qcontent").focus();
+		return false;
+	}
+});
+
+</script>
